@@ -5,6 +5,9 @@ services:
     container_name: loki-lab
     command: 
       - --config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki/loki-config:/etc/loki
+      - loki-data:/loki
     ports:
       - 3100:3100                                  
     networks:
@@ -83,3 +86,4 @@ networks:
 volumes:
   grafanadb-lab:
   grafana-lab:
+  loki-data:

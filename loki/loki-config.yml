@@ -1,0 +1,115 @@
+auth_enabled: false
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+  log_level: info
+
+ingester:
+  wal:
+    dir: "/tmp/wal"
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+  max_chunk_age: 1h
+  chunk_target_size: 1048576
+  chunk_retain_period: 30s
+  max_transfer_retries: 0
+
+schema_config:
+  configs:
+    - from: 2020-05-15
+      store: boltdb-shipper
+      object_store: bos
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
+
+storage_config:
+  boltdb_shipper:
+    active_index_directory: /loki/index
+    cache_location: /loki/index_cache
+    shared_store: bos
+ 
+compactor:
+  working_directory: /tmp/loki/compactor
+  shared_store: bos
+  shared_store_directory: /tmp/loki/compactor-shared
+  compaction:
+    working_directory: /tmp/loki/compactor
+    compaction_interval: 1h
+    retention_delete_delay: 0s
+    retention_enabled: true
+    retention_period: 168h
+    clean_stale: true
+  ring:
+    kvstore:
+      store: inmemory
+  max_block_size: 536870912
+limits_config:
+  reject_old_samples: true
+  reject_old_samples_max_age: 168h
+chunk_store_config:
+  max_look_back_period: 0s
+table_manager:
+  retention_deletes_enabled: false
+  retention_period: 0s
+frontend_worker:
+  frontend_address: ""
+  ring:
+    kvstore:
+      store: inmemory
+  query_range:
+    split_queries_by_interval: 1440
+  query:
+    timeout: 0s
+    max_concurrent: 0
+    result_size_limit: 0
+    query_lookback_delta: 0s
+  log_queries_longer_than: 0s
+  query_log_min_duration: 0s
+distributor:
+  active-replication: true
+  ring:
+    kvstore:
+      store: inmemory
+  heartbeat_timeout: 5s
+  lb_policy: ""
+  conn_balance_per_target: true
+  conn_idle_timeout: 5m
+  max_distributors: 0
+  max_active_targets: 0
+  target_limit_per_endpoint: 0
+  distributor_timeout: 0s
+  send_batch_size: 0
+  max_distributor_send_queue_size: 0
+  max_replication_factor: 0
+  retry_on_unavailable: false
+  retry_on_status_codes: []
+  block_relocate_frequency: 0s
+  block_relocate_warmup_period: 0s
+  block_relocate_timeout: 0s
+table_manager:
+  retention_deletes_enabled: false
+  retention_period: 0s
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9095
+  log_level: info
+  log_format: logfmt
+  enable_debug_sockets: false
+  grpc_server_max_recv_msg_size: 104857600
+  grpc_server_max_send_msg_size: 104857600
+  grpc_server_max_concurrent_streams: 1024
+  grpc_server_auth_enabled: false
+  grpc_server_tls_cert_file: ""
+  grpc_server_tls_key_file: ""
+  grpc_server_tls_client_ca_file: ""
+  grpc_server_tls_require_client

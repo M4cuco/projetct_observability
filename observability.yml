@@ -1,0 +1,85 @@
+version: "3.8"
+services:
+  loki:
+    image: grafana/loki:latest
+    container_name: loki-lab
+    command: 
+      - --config.file=/etc/loki/local-config.yaml
+    ports:
+      - 3100:3100                                  
+    networks:
+      - loki
+  
+  grafanadb:
+    image: postgres:latest
+    container_name: grafanadb-lab
+    restart: always
+    environment:
+      POSTGRES_DB: grafana-db
+      POSTGRES_USER: grafana-user
+      POSTGRES_PASSWORD: P@ssw0rd
+    ports:
+      - 5499:5432
+    volumes:
+      - grafanadb-lab:/var/lib/postgresql/data
+    networks:
+      - loki
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana-lab
+    environment:
+      GF_DATABASE_TYPE: postgres
+      GF_DATABASE_HOST: grafanadb:5432
+      GF_DATABASE_NAME: grafana-db
+      GF_DATABASE_USER: grafana-user
+      GF_DATABASE_PASSWORD: P@ssw0rd
+      GF_DATABASE_SSL_MODE: disable
+    depends_on:
+      - grafanadb
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-lab:/var/lib/grafana
+    networks:
+      - loki
+    
+
+  #promtail:
+  #  image: grafana/promtail:latest
+  #  container_name: promtail-lab
+  #  command:
+  #    - --config.file=/etc/promtail/promtail-config.yml
+  #  volumes:
+  #    - ./promtail/promtail-config.yml:/etc/promtail/promtail-config.yml
+  #    - /var/lib/docker/containers:/var/lib/docker/containers:ro
+  #  depends_on:
+  #    - loki
+  #  networks:
+  #    - loki
+#
+  #tempo:
+  #  image: grafana/tempo:latest
+  #  container_name: tempo-lab
+  #  command:
+  #    - --config.file=/etc/tempo/tempo.yml
+  #    - --target=all 
+  #    - --storage.trace.backend=local
+  #    - --storage.trace.local.path=/var/tempo
+  #    - --auth.enabled=false
+  #  volumes:
+  #    - ./tempo/tempo-data:/tmp/tempo
+  #    - ./tempo/tempo-config.yml:/etc/tempo/tempo.yml
+  #  ports:
+  #    - 3200:3200   
+  #    - 4317:4317  
+  #    - 4318:4318  
+  #  networks:
+  #    - loki
+
+networks:
+  loki:
+
+volumes:
+  grafanadb-lab:
+  grafana-lab:
